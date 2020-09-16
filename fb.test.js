@@ -6,13 +6,33 @@ const url = "https://www.facebook.com/";
 const user= ''
 const password= ''
 
-// beforeAll(async () => {
-//   jest.setTimeout(1000000000);
+beforeAll(async () => {
+    await browser.manage().deleteAllCookies();
+});
+// afterAll(async () => {
+            
+//             // deletes all cookies
+//             await browser.manage().deleteAllCookies();
+       
 // });
 describe('LOGIN', () => {
+
+test("login success1", async () => {
+ await browser.manage().window().maximize();
+ await browser.get(url);
+ const originalWindow = await browser.getWindowHandle();
+ expect((await browser.getAllWindowHandles()).length).toEqual(1);
+   
+ const url2= await browser.getCurrentUrl().toString();
+ expect(url2).toMatch('https://www.facebook.com/');
+}, 
+30000);
+
 test("login success", async () => {
-  await browser.manage().window().maximize();
-  await browser.get(url);
+  // let chromeoptions = new chrome.Options();
+  // chromeoptions.addArguments("--incognito");
+  
+
   /**
    * Store the ID of the original window
    */
@@ -24,6 +44,7 @@ test("login success", async () => {
   await pass.sendKeys(password);
   const submit = await browser.findElement(by.css("#u_0_b"));
   await submit.click();
+  
   /**
    * Wait for the new window or tab in 10 seconds.
    * Assume that the browser is opening a new window so we make sure the total window/tab less than equal 2.
@@ -38,12 +59,22 @@ test("login success", async () => {
       await browser.switchTo().window(handle);
     }
   });
-
- //  await until.elementLocated(by.css("a[aria-label=\"Dyah\"] .a8c37x1j.ni8dbmo4"));
-  const title = await browser.findElement(by.css("a[aria-label=\"Dyah\"] .a8c37x1j.ni8dbmo4")).getText();
+  if (await browser.findElements(by.tagName("a[aria-label=\"Dyah\"] .a8c37x1j.ni8dbmo4")).size==0) {
+  await submit.click();
+} 
+ try {
+    await until.elementLocated(by.tagName("a[aria-label=\"Dyah\"] .a8c37x1j.ni8dbmo4"),30000);
+    const title = await browser.findElement(by.tagName("a[aria-label=\"Dyah\"] .a8c37x1j.ni8dbmo4"),{ waitUntil: "domcontentloaded" }).getText();
+  } catch (e) {
+    expect(e).toMatch('error');
+  }
+   
+  const title = await browser.findElement(by.tagName("a[aria-label=\"Dyah\"] .a8c37x1j.ni8dbmo4"),30000).getText();
   await expect(title).toContain("Dyah");
 
 
 },
 30000);
+
+   
 });
